@@ -279,13 +279,37 @@
       document.getElementById('authBtn').innerText = 'Logout';
     }
 
-    function handleAuthAction() {
+    // UPDATED LOGIN FUNCTION
+    async function handleAuthAction() {
       if (currentUser) {
         localStorage.removeItem('currentUser');
-        window.location.href = '/';
+        window.location.reload();
       } else {
-        // Handle login redirection if required
-        alert("Please log in using your account page.");
+        const username = prompt("Enter your username to login:");
+        if (!username) return;
+        
+        const password = prompt("Enter your password:");
+        if (!password) return;
+
+        try {
+          const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
+            alert("Login successful!");
+            window.location.reload(); 
+          } else {
+            const errorText = await res.text();
+            alert("Login failed: " + errorText);
+          }
+        } catch (e) {
+          alert("Error connecting to the server.");
+        }
       }
     }
 
