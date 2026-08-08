@@ -12,11 +12,14 @@ const PORT = process.env.PORT || 3000;
 const MAX_BALANCE = parseInt(process.env.MAX_BALANCE) || 10000000;
 const FOOTBALL_API_KEY = 'e22423a5c1344cbfb1899985d652ffed';
 
+// Database Connection (Supports local setup and Aiven cloud with SSL)
 const db = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'marius',
-  database: process.env.DB_NAME || 'betting'
+  database: process.env.DB_NAME || 'betting',
+  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : null
 });
 
 db.connect((err) => {
@@ -309,7 +312,7 @@ app.post('/admin/resolve-match', (req, res) => {
                 } else if (sel.market === 'cs') {
                   let exactMatchStr = `${hScore}-${aScore}`;
                   if (sel.pick === 'other') {
-                    if (hScore <= 4 && aScore <= 4) matchFailed = true; // 'Other' means goals > 4 for either team
+                    if (hScore <= 4 && aScore <= 4) matchFailed = true;
                   } else {
                     if (sel.pick !== exactMatchStr) matchFailed = true;
                   }
