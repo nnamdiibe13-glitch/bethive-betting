@@ -12,23 +12,30 @@ const PORT = process.env.PORT || 3000;
 const MAX_BALANCE = parseInt(process.env.MAX_BALANCE) || 10000000;
 const FOOTBALL_API_KEY = 'e22423a5c1344cbfb1899985d652ffed';
 
-// Database Connection (Supports local setup and Aiven cloud with SSL)
-const db = mysql.createConnection({
+// Database Connection Pool (Prevents {"fatal": true} drops by auto-reconnecting)
+const db = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'marius',
   database: process.env.DB_NAME || 'betting',
-  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : null
+  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : null,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
 
-db.connect((err) => {
+// Test DB Connection & Initialize Tables
+db.getConnection((err, connection) => {
   if (err) {
     console.error('Database connection failed:', err);
     return;
   }
-  console.log('Connected to MySQL successfully.');
-  
+  console.log('Connected to MySQL Pool successfully.');
+  connection.release(); // Release connection back to pool
+
   db.query(`
     CREATE TABLE IF NOT EXISTS custom_matches (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -126,7 +133,7 @@ app.get('/matches', async (req, res) => {
   let apiUpcoming = [];
 
   db.query("SELECT * FROM custom_matches WHERE status = 'UPCOMING' ORDER BY match_time ASC", async (err, results) => {
-    if (!err && results.length > 0) {
+    if (!err && results && results.length > 0) {
       customUpcoming = results.map(cm => ({
         id: `custom_${cm.id}`,
         dbId: cm.id,
@@ -330,7 +337,7 @@ app.post('/admin/resolve-match', (req, res) => {
             } else {
               db.query('UPDATE bets SET status = ? WHERE id = ?', [`WON (Match #${matchId} settled)`, bet.id], () => {
                 db.query('SELECT balance FROM users WHERE id = ?', [bet.user_id], (err, uRes) => {
-                  if (!err && uRes.length > 0) {
+                  if (!err && uRes && uRes.length > 0) {
                     let newBal = parseFloat(uRes[0].balance) + parseFloat(bet.potential_win);
                     db.query('UPDATE users SET balance = ? WHERE id = ?', [newBal, bet.user_id]);
                   }
@@ -366,7 +373,7 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body;
   db.query('SELECT * FROM users WHERE username = ?', [username], async (err, results) => {
     if (err) return res.status(500).send(err);
-    if (results.length === 0) return res.status(400).send('User not found');
+    if (!results || results.length === 0) return res.status(400).send('User not found');
 
     const user = results[0];
     const isMatch = await bcrypt.compare(password, user.password);
@@ -423,7 +430,7 @@ app.post('/place-bet', (req, res) => {
 
   db.query('SELECT balance FROM users WHERE id = ?', [userId], (err, results) => {
     if (err) return res.status(500).send(err);
-    if (results.length === 0) return res.status(404).send('User not found');
+    if (!results || results.length === 0) return res.status(404).send('User not found');
 
     const currentBalance = parseFloat(results[0].balance);
     if (currentBalance < betAmount) {
@@ -468,6 +475,7 @@ app.post('/deposit', (req, res) => {
 
   db.query('SELECT balance FROM users WHERE id = ?', [userId], (err, results) => {
     if (err) return res.status(500).send(err);
+    if (!results || results.length === 0) return res.status(404).send('User not found.');
     const currentBal = parseFloat(results[0].balance);
     const newBalance = currentBal + depositAmt;
     db.query('UPDATE users SET balance = ? WHERE id = ?', [newBalance, userId], (err) => {
@@ -485,6 +493,7 @@ app.post('/withdraw', (req, res) => {
 
   db.query('SELECT balance FROM users WHERE id = ?', [userId], (err, results) => {
     if (err) return res.status(500).send(err);
+    if (!results || results.length === 0) return res.status(404).send('User not found.');
     const currentBal = parseFloat(results[0].balance);
     if (withdrawAmt > currentBal) return res.status(400).send('Insufficient funds!');
     const newBalance = currentBal - withdrawAmt;
