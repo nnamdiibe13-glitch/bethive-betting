@@ -22,7 +22,7 @@
     header { background: var(--bg-card); border-bottom: 2px solid var(--accent-red); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .logo { font-size: 1.5em; font-weight: 900; color: #fff; letter-spacing: -1px; }
     .logo span { color: var(--accent-red); }
-    .header-user { display: flex; align-items: center; gap: 15px; font-size: 0.95em; }
+    .header-user { display: flex; align-items: center; gap: 12px; font-size: 0.95em; flex-wrap: wrap; }
     .header-balance { background: #2a2a2a; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-yellow); font-weight: bold; }
 
     .app-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 15px; }
@@ -44,7 +44,7 @@
     .btn-yellow:hover { background: #e6b800; }
 
     .match-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px 15px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
-    .match-meta { font-size: 0.8em; color: var(--text-muted); display: flex; justify-content: space-between; }
+    .match-meta { font-size: 0.8em; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
     .match-teams { font-weight: bold; font-size: 1.05em; }
     
     .market-section { background: #181818; padding: 8px; border-radius: 4px; border: 1px solid #282828; }
@@ -52,25 +52,43 @@
 
     .odds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .odds-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-    .odds-grid-cs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .odds-grid-cs { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 5px; }
 
-    .odd-btn { background: #282828; border: 1px solid var(--border-color); border-radius: 4px; padding: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 2px; transition: all 0.2s; }
+    .odd-btn { background: #282828; border: 1px solid var(--border-color); border-radius: 4px; padding: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 2px; transition: all 0.2s; user-select: none; }
     .odd-btn:hover { background: #333; border-color: var(--accent-red); }
-    .odd-btn.selected { background: rgba(204, 0, 0, 0.25); border-color: var(--accent-red); }
+    .odd-btn.selected { background: rgba(204, 0, 0, 0.35); border-color: var(--accent-red); box-shadow: 0 0 6px rgba(204, 0, 0, 0.5); }
     .odd-label { font-size: 0.7em; color: var(--text-muted); }
     .odd-value { font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; }
 
     .slip-item { background: #252525; border-left: 3px solid var(--accent-red); padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; position: relative; }
     .slip-remove { position: absolute; top: 8px; right: 8px; color: var(--text-muted); cursor: pointer; font-size: 0.9em; background: none; border: none; }
 
-    .auth-wrapper { max-width: 420px; margin: 60px auto; }
+    .auth-wrapper { max-width: 420px; margin: 60px auto; padding: 0 15px; }
     .msg { margin-top: 8px; font-size: 0.9em; font-weight: bold; }
     .hidden { display: none !important; }
     .live-badge { background: var(--accent-red); color: #fff; padding: 3px 8px; font-size: 0.75em; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; white-space: nowrap; }
     th, td { border-bottom: 1px solid var(--border-color); padding: 10px; text-align: left; }
     th { color: var(--text-muted); font-weight: 600; background: #181818; }
+
+    /* Responsive Breakdown for Tablets & Mobile */
+    @media (max-width: 992px) {
+      .app-container { flex-direction: column; }
+      .sidebar, .main-content, .betslip-panel { width: 100%; }
+      .betslip-panel .panel { position: static; }
+      .betslip-panel { order: 2; }
+      .main-content { order: 1; }
+      .sidebar { order: 3; }
+    }
+
+    @media (max-width: 576px) {
+      header { padding: 10px 15px; }
+      .logo { font-size: 1.3em; }
+      .header-user { font-size: 0.85em; gap: 8px; }
+      .odds-grid-cs { grid-template-columns: repeat(4, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -147,18 +165,20 @@
 
       <div class="panel">
         <h3>My Bet History</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Stake</th>
-              <th>Slip Details & Status</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <tr><td colspan="3" style="color:var(--text-muted)">No bets placed yet.</td></tr>
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Stake</th>
+                <th>Slip Details & Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="3" style="color:var(--text-muted)">No bets placed yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -257,33 +277,37 @@
       </div>
       
       <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
-        <div style="flex: 1; min-width: 350px;">
+        <div style="flex: 1; min-width: 300px;">
           <h3>Users Management</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Balance</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminUsersTable"></tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Balance</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTable"></tbody>
+            </table>
+          </div>
         </div>
-        <div style="flex: 1; min-width: 350px;">
+        <div style="flex: 1; min-width: 300px;">
           <h3>Platform Bets Activity</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="adminBetsTable"></tbody>
-          </table>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="adminBetsTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -321,13 +345,22 @@
         document.getElementById('displayBalance').innerText = parseFloat(currentUser.balance).toLocaleString('en-US', { minimumFractionDigits: 2 });
         loadMatches();
         fetchHistory();
+        
+        // Refresh live matches every 30 seconds
+        setInterval(loadMatches, 30000);
       }
     }
 
     async function loadMatches() {
-      const res = await fetch('/matches');
-      allMatches = await res.json();
-      renderMatches();
+      try {
+        const res = await fetch('/matches');
+        if (res.ok) {
+          allMatches = await res.json();
+          renderMatches();
+        }
+      } catch (e) {
+        console.error("Match fetch failed:", e);
+      }
     }
 
     function renderMatches() {
@@ -352,7 +385,7 @@
         : `<span style="color: var(--accent-yellow); font-weight: bold;">🕒 ${new Date(m.matchTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>`;
 
       const csList = [
-        {k: '0-0', l: '0:0', o: m.odds.cs00}, {k: '1-0', l: '1:0', o: m.odds.cs10}, {k: '2-0', l: '2-0', o: m.odds.cs20}, {k: '3-0', l: '3:0', o: m.odds.cs30}, {k: '4-0', l: '4:0', o: m.odds.cs40},
+        {k: '0-0', l: '0:0', o: m.odds.cs00}, {k: '1-0', l: '1:0', o: m.odds.cs10}, {k: '2-0', l: '2:0', o: m.odds.cs20}, {k: '3-0', l: '3:0', o: m.odds.cs30}, {k: '4-0', l: '4:0', o: m.odds.cs40},
         {k: '0-1', l: '0:1', o: m.odds.cs01}, {k: '1-1', l: '1:1', o: m.odds.cs11}, {k: '2-1', l: '2:1', o: m.odds.cs21}, {k: '3-1', l: '3:1', o: m.odds.cs31}, {k: '4-1', l: '4:1', o: m.odds.cs41},
         {k: '0-2', l: '0:2', o: m.odds.cs02}, {k: '1-2', l: '1:2', o: m.odds.cs12}, {k: '2-2', l: '2:2', o: m.odds.cs22}, {k: '3-2', l: '3:2', o: m.odds.cs32}, {k: '4-2', l: '4:2', o: m.odds.cs42},
         {k: '0-3', l: '0:3', o: m.odds.cs03}, {k: '1-3', l: '1:3', o: m.odds.cs13}, {k: '2-3', l: '2:3', o: m.odds.cs23}, {k: '3-3', l: '3:3', o: m.odds.cs33}, {k: '4-3', l: '4:3', o: m.odds.cs43},
@@ -448,20 +481,27 @@
     }
 
     function isPicked(matchId, market, pick) {
-      return betSlip.some(s => s.matchId == matchId && s.market === market && s.pick === pick);
+      return betSlip.some(s => String(s.matchId) === String(matchId) && s.market === market && s.pick === pick);
     }
 
     function selectOdd(matchId, matchName, market, pick, odds) {
-      betSlip = betSlip.filter(s => !(String(s.matchId) === String(matchId) && s.market === market));
+      const existingIndex = betSlip.findIndex(s => String(s.matchId) === String(matchId) && s.market === market && s.pick === pick);
       
-      let marketTitleLabel = market === '1x2' ? `1X2 (${pick.toUpperCase()})` 
-        : market === 'dc' ? `Double Chance (${pick.toUpperCase()})` 
-        : market === 'dnb' ? `Draw No Bet (${pick.toUpperCase()})` 
-        : market === 'cs' ? `Correct Score (${pick === 'other' ? 'Other' : pick})` 
-        : market === 'ou' ? `O/U 2.5 (${pick.toUpperCase()})` 
-        : `BTTS (${pick.toUpperCase()})`;
+      // Toggle logic: If clicking the exact same selection, remove it. Otherwise replace/add.
+      if (existingIndex > -1) {
+        betSlip.splice(existingIndex, 1);
+      } else {
+        betSlip = betSlip.filter(s => !(String(s.matchId) === String(matchId) && s.market === market));
+        
+        let marketTitleLabel = market === '1x2' ? `1X2 (${pick.toUpperCase()})` 
+          : market === 'dc' ? `Double Chance (${pick.toUpperCase()})` 
+          : market === 'dnb' ? `Draw No Bet (${pick.toUpperCase()})` 
+          : market === 'cs' ? `Correct Score (${pick === 'other' ? 'Other' : pick})` 
+          : market === 'ou' ? `O/U 2.5 (${pick.toUpperCase()})` 
+          : `BTTS (${pick.toUpperCase()})`;
 
-      betSlip.push({ matchId, matchName, market, pick, marketTitleLabel, odds });
+        betSlip.push({ matchId, matchName, market, pick, marketTitleLabel, odds });
+      }
 
       renderMatches();
       renderSlip();
@@ -487,7 +527,7 @@
       container.innerHTML = betSlip.map((s, idx) => `
         <div class="slip-item">
           <button class="slip-remove" onclick="removeFromSlip(${idx})">✕</button>
-          <div style="font-weight:bold; margin-bottom:3px;">${s.matchName}</div>
+          <div style="font-weight:bold; margin-bottom:3px; padding-right:15px;">${s.matchName}</div>
           <div style="display:flex; justify-content:space-between; font-size:0.85em; color:var(--text-muted);">
             <span>Market: <strong style="color:#fff;">${s.marketTitleLabel}</strong></span>
             <span>Odds: <strong style="color:var(--accent-yellow);">${s.odds}x</strong></span>
@@ -510,6 +550,10 @@
     async function register() {
       const username = document.getElementById('regUser').value;
       const password = document.getElementById('regPass').value;
+      if(!username || !password) {
+        document.getElementById('regMsg').innerText = "Please enter username & password.";
+        return;
+      }
       const res = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -521,6 +565,11 @@
     async function login() {
       const username = document.getElementById('loginUser').value;
       const password = document.getElementById('loginPass').value;
+
+      if(!username || !password) {
+        document.getElementById('loginMsg').innerText = "Please enter username & password.";
+        return;
+      }
 
       const res = await fetch('/login', {
         method: 'POST',
