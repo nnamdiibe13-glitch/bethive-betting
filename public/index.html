@@ -3,400 +3,769 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bethive - Live Betting Platform</title>
+  <title>Bethive - Pro Football Betting Markets</title>
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --accent-yellow: #f39c12;
-      --accent-red: #e74c3c;
+      --bg-main: #121212;
+      --bg-card: #1e1e1e;
+      --accent-red: #cc0000;
+      --accent-red-hover: #e60000;
+      --accent-yellow: #ffcc00;
       --text-main: #ffffff;
-      --text-muted: #b0b0b0;
-      --border-color: #333333;
+      --text-muted: #aaaaaa;
+      --border-color: #2c2c2c;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg-main); color: var(--text-main); }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    header { background: var(--bg-card); border-bottom: 2px solid var(--accent-red); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.5em; font-weight: 900; color: #fff; letter-spacing: -1px; }
+    .logo span { color: var(--accent-red); }
+    .header-user { display: flex; align-items: center; gap: 15px; font-size: 0.95em; }
+    .header-balance { background: #2a2a2a; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-yellow); font-weight: bold; }
 
-    header {
-      background-color: var(--card-bg);
-      border-bottom: 1px solid var(--border-color);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    .app-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 15px; }
+    .sidebar { width: 220px; flex-shrink: 0; }
+    .main-content { flex: 1; min-width: 0; }
+    .betslip-panel { width: 340px; flex-shrink: 0; }
 
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: var(--accent-yellow);
-      letter-spacing: 1px;
-    }
+    .panel { background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 20px; }
+    .panel h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .user-panel {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; background: #2a2a2a; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; }
+    input:focus, select:focus { outline: none; border-color: var(--accent-red); }
+    
+    .btn-red { background: var(--accent-red); color: white; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
+    .btn-red:hover { background: var(--accent-red-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    .btn-outline:hover { border-color: #fff; color: #fff; }
+    .btn-yellow { background: var(--accent-yellow); color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 4px; width: 100%; cursor: pointer; }
+    .btn-yellow:hover { background: #e6b800; }
 
-    .balance-box {
-      background: #2c2c2c;
-      padding: 6px 12px;
-      border-radius: 4px;
-      color: var(--accent-yellow);
-      font-weight: bold;
-    }
+    .match-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px 15px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .match-meta { font-size: 0.8em; color: var(--text-muted); display: flex; justify-content: space-between; }
+    .match-teams { font-weight: bold; font-size: 1.05em; }
+    
+    .market-section { background: #181818; padding: 8px; border-radius: 4px; border: 1px solid #282828; }
+    .market-title { font-size: 0.75em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; font-weight: bold; }
 
-    .btn {
-      background: var(--accent-yellow);
-      color: #000;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: opacity 0.2s;
-    }
+    .odds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .odds-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .odds-grid-cs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 
-    .btn:hover {
-      opacity: 0.85;
-    }
+    .odd-btn { background: #282828; border: 1px solid var(--border-color); border-radius: 4px; padding: 6px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 2px; transition: all 0.2s; }
+    .odd-btn:hover { background: #333; border-color: var(--accent-red); }
+    .odd-btn.selected { background: rgba(204, 0, 0, 0.25); border-color: var(--accent-red); }
+    .odd-label { font-size: 0.7em; color: var(--text-muted); }
+    .odd-value { font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; }
 
-    .btn-danger {
-      background: var(--accent-red);
-      color: #fff;
-    }
+    .slip-item { background: #252525; border-left: 3px solid var(--accent-red); padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; position: relative; }
+    .slip-remove { position: absolute; top: 8px; right: 8px; color: var(--text-muted); cursor: pointer; font-size: 0.9em; background: none; border: none; }
 
-    /* Main App Layout */
-    .app-container {
-      display: grid;
-      grid-template-columns: 240px 1fr 300px;
-      gap: 20px;
-      padding: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-      flex: 1;
-    }
+    .auth-wrapper { max-width: 420px; margin: 60px auto; }
+    .msg { margin-top: 8px; font-size: 0.9em; font-weight: bold; }
+    .hidden { display: none !important; }
+    .live-badge { background: var(--accent-red); color: #fff; padding: 3px 8px; font-size: 0.75em; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
 
-    aside, section {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 15px;
-      height: fit-content;
-    }
-
-    h3 {
-      margin-bottom: 15px;
-      font-size: 16px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-      color: var(--text-muted);
-    }
-
-    .nav-links, .wallet-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .nav-link {
-      background: transparent;
-      color: var(--text-main);
-      border: none;
-      text-align: left;
-      padding: 8px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .nav-link:hover {
-      background: #2a2a2a;
-      color: var(--accent-yellow);
-    }
-
-    input {
-      width: 100%;
-      padding: 8px;
-      background: #2a2a2a;
-      border: 1px solid var(--border-color);
-      color: #fff;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-
-    /* Match Container Styling */
-    .match-card {
-      background: #252525;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    .match-teams {
-      font-weight: bold;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    .odds-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .odd-btn {
-      background: #333;
-      border: 1px solid #444;
-      color: #fff;
-      padding: 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .odd-btn:hover, .odd-btn.selected {
-      background: var(--accent-yellow);
-      color: #000;
-      border-color: var(--accent-yellow);
-    }
-
-    /* Bet Slip */
-    .bet-slip-content {
-      font-size: 14px;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    /* ========================================== */
-    /* MOBILE RESPONSIVE MEDIA QUERY FIX         */
-    /* ========================================== */
-    @media screen and (max-width: 900px) {
-      .app-container {
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        gap: 10px;
-      }
-
-      aside, section {
-        width: 100%;
-      }
-
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
-      }
-
-      .user-panel {
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+    th, td { border-bottom: 1px solid var(--border-color); padding: 10px; text-align: left; }
+    th { color: var(--text-muted); font-weight: 600; background: #181818; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">BETHIVE</div>
-    <div class="user-panel" id="userPanel">
-      <span id="welcomeMsg">Welcome Guest</span>
-      <div class="balance-box" id="balanceBox">₦0.00</div>
-      <button class="btn btn-danger" id="authBtn" onclick="handleAuthAction()">Login</button>
+  <header id="mainHeader" class="hidden">
+    <div class="logo">BET<span>HIVE</span></div>
+    <div class="header-user">
+      <div>Hi, <span id="displayUsername" style="color:#fff; font-weight:bold;"></span></div>
+      <div class="header-balance">₦<span id="displayBalance">0.00</span></div>
+      <button class="btn-outline" onclick="logout()" style="padding: 5px 10px; font-size: 0.85em;">Logout</button>
     </div>
   </header>
 
-  <div class="app-container">
-    <aside>
-      <h3>NAVIGATION</h3>
-      <div class="nav-links">
-        <button class="nav-link">⚽ Football Matches</button>
-        <button class="nav-link">🎮 Virtual Sports</button>
+  <div id="authSection" class="auth-wrapper">
+    <div class="panel">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="margin:0; font-size: 2em; letter-spacing: -1px;">BET<span style="color:var(--accent-red)">HIVE</span></h2>
+        <p style="color:var(--text-muted); font-size:0.9em; margin: 5px 0 0 0;">Pro Football Betting Platform</p>
       </div>
 
-      <h3>WALLET ACTIONS</h3>
-      <div class="wallet-actions">
+      <div id="loginFormContainer">
+        <h3>Account Login</h3>
+        <input type="text" id="loginUser" placeholder="Username (use 'admin' for dashboard)">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button class="btn-red" onclick="login()">Log In</button>
+        <div id="loginMsg" class="msg" style="color:var(--accent-red)"></div>
+        <p style="text-align:center; font-size:0.85em; margin-top:15px; color:var(--text-muted);">
+          Don't have an account? <a href="#" onclick="toggleAuth(event)" style="color:var(--accent-yellow); text-decoration:none;">Register here</a>
+        </p>
+      </div>
+
+      <div id="regFormContainer" class="hidden">
+        <h3>Create New Account</h3>
+        <input type="text" id="regUser" placeholder="Choose Username">
+        <input type="password" id="regPass" placeholder="Choose Password">
+        <button class="btn-red" onclick="register()">Register Account</button>
+        <div id="regMsg" class="msg" style="color:var(--accent-yellow)"></div>
+        <p style="text-align:center; font-size:0.85em; margin-top:15px; color:var(--text-muted);">
+          Already have an account? <a href="#" onclick="toggleAuth(event)" style="color:var(--accent-yellow); text-decoration:none;">Log in here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameSection" class="app-container hidden">
+    <div class="sidebar">
+      <div class="panel">
+        <h3>Navigation</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.95em;">
+          <li style="padding: 8px 0; border-bottom: 1px solid var(--border-color); color: var(--accent-yellow); font-weight: bold;">⚽ Football Matches</li>
+          <li style="padding: 8px 0; color: var(--text-muted);">🎮 Virtual Sports</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Wallet Actions</h3>
         <input type="number" id="walletAmount" placeholder="Amount (₦)">
-        <button class="btn" onclick="handleDeposit()">Quick Deposit</button>
-        <button class="btn btn-danger" onclick="handleWithdraw()">Withdraw Funds</button>
+        <button class="btn-red" style="margin-bottom: 8px;" onclick="updateWallet('deposit')">Quick Deposit</button>
+        <button class="btn-outline" style="width: 100%; border-color: #555; color: #fff;" onclick="updateWallet('withdraw')">Withdraw Funds</button>
+        <div id="walletMsg" class="msg"></div>
       </div>
-    </aside>
+    </div>
 
-    <section id="matchesSection">
-      <h3>UPCOMING MATCHES (FULL MARKETS)</h3>
-      <div id="matchesList">
-        <p style="text-align: center; color: var(--text-muted); padding: 20px;">Loading live matches...</p>
+    <div class="main-content">
+      <div class="panel">
+        <h3>⚡ Live Football Matches</h3>
+        <div id="liveMatchContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
       </div>
-    </section>
 
-    <aside>
-      <h3>BET SLIP (<span id="slipCount">0</span>)</h3>
-      <div class="bet-slip-content" id="betSlipBox">
-        Your bet slip is empty.<br>Click odds to add selections.
+      <div class="panel">
+        <h3>📅 Upcoming Scheduled Matches (Full Markets)</h3>
+        <div id="upcomingMatchContainer" style="max-height: 450px; overflow-y: auto; padding-right: 5px;"></div>
       </div>
-      <div style="margin-top: 15px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px;">
-          <span>Total Odds:</span>
-          <span id="totalOdds" style="color: var(--accent-yellow); font-weight: bold;">1.00</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px;">
-          <span>Potential Payout:</span>
-          <span id="potentialPayout" style="color: var(--accent-yellow); font-weight: bold;">₦0.00</span>
-        </div>
-        <input type="number" id="stakeInput" placeholder="e.g. 1000" oninput="updatePayout()">
-        <button class="btn" style="width: 100%; background: var(--accent-yellow);" onclick="placeBet()">PLACE BET</button>
+
+      <div class="panel">
+        <h3>My Bet History</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Stake</th>
+              <th>Slip Details & Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr><td colspan="3" style="color:var(--text-muted)">No bets placed yet.</td></tr>
+          </tbody>
+        </table>
       </div>
-    </aside>
+    </div>
+
+    <div class="betslip-panel">
+      <div class="panel" style="position: sticky; top: 80px;">
+        <h3>Bet Slip (<span id="slipCount" style="color:var(--accent-yellow)">0</span>)</h3>
+        
+        <div id="slipContainer" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
+          <p style="color: var(--text-muted); font-size: 0.9em; text-align: center; margin: 20px 0;">Your bet slip is empty.<br>Click odds to add selections.</p>
+        </div>
+
+        <div style="background: #252525; padding: 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; font-size:0.9em; margin-bottom: 6px;">
+            <span style="color:var(--text-muted);">Total Odds:</span>
+            <span id="totalOdds" style="color:var(--accent-yellow); font-weight:bold;">1.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.9em;">
+            <span style="color:var(--text-muted);">Potential Payout:</span>
+            <span style="color:#2ecc71; font-weight:bold;">₦<span id="parlayPayout">0.00</span></span>
+          </div>
+        </div>
+
+        <label style="font-size: 0.85em; color:var(--text-muted);">Stake Amount (₦)</label>
+        <input type="number" id="betAmount" placeholder="e.g. 1000" oninput="calculateParlayPayout()">
+
+        <button id="placeBetBtn" class="btn-yellow" onclick="placeParlayBet()">PLACE BET</button>
+        <div id="gameMsg" class="msg" style="text-align: center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminSection" class="app-container hidden">
+    <div class="panel" style="width: 100%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
+        <h2 style="margin: 0; color: var(--accent-yellow);">⚙️ Bethive Admin Control Panel</h2>
+        <button class="btn-outline" onclick="logout()">Log Out</button>
+      </div>
+
+      <div class="panel" style="background: #222; border-color: var(--accent-yellow);">
+        <h3 style="color: var(--accent-yellow);">📅 Schedule Custom Match with Full Correct Score Market</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: center;">
+          <input type="text" id="customHome" placeholder="Home Team">
+          <input type="text" id="customAway" placeholder="Away Team">
+          <input type="datetime-local" id="matchTimeInput">
+          <input type="number" step="0.01" id="homeOdd" placeholder="Home Odd (1)" value="1.90">
+          <input type="number" step="0.01" id="drawOdd" placeholder="Draw Odd (X)" value="3.30">
+          <input type="number" step="0.01" id="awayOdd" placeholder="Away Odd (2)" value="3.10">
+          <input type="number" step="0.01" id="overOdd" placeholder="Over 2.5 Odd" value="1.85">
+          <input type="number" step="0.01" id="underOdd" placeholder="Under 2.5 Odd" value="1.95">
+          <input type="number" step="0.01" id="bttsYesOdd" placeholder="BTTS Yes" value="1.80">
+          <input type="number" step="0.01" id="bttsNoOdd" placeholder="BTTS No" value="1.90">
+          
+          <input type="number" step="0.01" id="cs00" placeholder="0:0 Odd" value="6.05">
+          <input type="number" step="0.01" id="cs10" placeholder="1:0 Odd" value="7.28">
+          <input type="number" step="0.01" id="cs20" placeholder="2:0 Odd" value="14.03">
+          <input type="number" step="0.01" id="cs30" placeholder="3:0 Odd" value="40.83">
+          <input type="number" step="0.01" id="cs40" placeholder="4:0 Odd" value="50.00">
+          
+          <input type="number" step="0.01" id="cs01" placeholder="0:1 Odd" value="5.79">
+          <input type="number" step="0.01" id="cs11" placeholder="1:1 Odd" value="4.79">
+          <input type="number" step="0.01" id="cs21" placeholder="2:1 Odd" value="10.93">
+          <input type="number" step="0.01" id="cs31" placeholder="3:1 Odd" value="31.67">
+          <input type="number" step="0.01" id="cs41" placeholder="4:1 Odd" value="50.00">
+
+          <input type="number" step="0.01" id="cs02" placeholder="0:2 Odd" value="8.77">
+          <input type="number" step="0.01" id="cs12" placeholder="1:2 Odd" value="8.65">
+          <input type="number" step="0.01" id="cs22" placeholder="2:2 Odd" value="13.94">
+          <input type="number" step="0.01" id="cs32" placeholder="3:2 Odd" value="48.82">
+          <input type="number" step="0.01" id="cs42" placeholder="4:2 Odd" value="50.00">
+
+          <input type="number" step="0.01" id="cs03" placeholder="0:3 Odd" value="19.91">
+          <input type="number" step="0.01" id="cs13" placeholder="1:3 Odd" value="19.63">
+          <input type="number" step="0.01" id="cs23" placeholder="2:3 Odd" value="38.38">
+          <input type="number" step="0.01" id="cs33" placeholder="3:3 Odd" value="50.00">
+          <input type="number" step="0.01" id="cs43" placeholder="4:3 Odd" value="50.00">
+
+          <input type="number" step="0.01" id="cs14" placeholder="1:4 Odd" value="50.00">
+          <input type="number" step="0.01" id="cs24" placeholder="2:4 Odd" value="50.00">
+          <input type="number" step="0.01" id="cs34" placeholder="3:4 Odd" value="50.00">
+          <input type="number" step="0.01" id="cs44" placeholder="4:4 Odd" value="50.00">
+          <input type="number" step="0.01" id="csOther" placeholder="Other Odd" value="49.49">
+        </div>
+        <button class="btn-red" onclick="addCustomMatch()" style="margin-top: 15px; max-width: 200px;">Schedule Match</button>
+        <div id="adminMatchMsg" class="msg"></div>
+      </div>
+
+      <div class="panel" style="background: #222; border-color: #2ecc71;">
+        <h3 style="color: #2ecc71;">🏆 Resolve Custom Match Results & Auto-Grade Bets</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <select id="resolveMatchSelect" style="flex: 2; min-width: 250px;"></select>
+          <input type="number" id="resolveHomeScore" placeholder="Home Score" style="width: 110px;">
+          <input type="number" id="resolveAwayScore" placeholder="Away Score" style="width: 110px;">
+          <button class="btn-yellow" onclick="resolveMatch()" style="width: 150px;">Settle Match</button>
+        </div>
+        <div id="resolveMsg" class="msg"></div>
+      </div>
+      
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+        <div style="flex: 1; min-width: 350px;">
+          <h3>Users Management</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Balance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTable"></tbody>
+          </table>
+        </div>
+        <div style="flex: 1; min-width: 350px;">
+          <h3>Platform Bets Activity</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminBetsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Basic client script hook
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-      document.getElementById('welcomeMsg').innerText = `Hi, ${currentUser.username}`;
-      document.getElementById('balanceBox').innerText = `₦${parseFloat(currentUser.balance).toLocaleString()}`;
-      document.getElementById('authBtn').innerText = 'Logout';
+    let currentUser = null;
+    let allMatches = { live: [], upcoming: [] };
+    let betSlip = [];
+
+    window.onload = function() {
+      const savedUser = localStorage.getItem('betting_currentUser');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        activateDashboard();
+      }
+    };
+
+    function toggleAuth(e) {
+      e.preventDefault();
+      document.getElementById('loginFormContainer').classList.toggle('hidden');
+      document.getElementById('regFormContainer').classList.toggle('hidden');
     }
 
-    // UPDATED LOGIN FUNCTION
-    async function handleAuthAction() {
-      if (currentUser) {
-        localStorage.removeItem('currentUser');
-        window.location.reload();
-      } else {
-        const username = prompt("Enter your username to login:");
-        if (!username) return;
-        
-        const password = prompt("Enter your password:");
-        if (!password) return;
+    function activateDashboard() {
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('mainHeader').classList.remove('hidden');
 
-        try {
-          const res = await fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-          });
+      if (currentUser.isAdmin) {
+        document.getElementById('adminSection').classList.remove('hidden');
+        loadAdminData();
+      } else {
+        document.getElementById('gameSection').classList.remove('hidden');
+        document.getElementById('displayUsername').innerText = currentUser.username;
+        document.getElementById('displayBalance').innerText = parseFloat(currentUser.balance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        loadMatches();
+        fetchHistory();
+      }
+    }
+
+    async function loadMatches() {
+      const res = await fetch('/matches');
+      allMatches = await res.json();
+      renderMatches();
+    }
+
+    function renderMatches() {
+      const liveContainer = document.getElementById('liveMatchContainer');
+      if (!allMatches.live || allMatches.live.length === 0) {
+        liveContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; font-size:0.9em;">No live matches right now.</p>';
+      } else {
+        liveContainer.innerHTML = allMatches.live.map(m => createMatchCardHtml(m, true)).join('');
+      }
+
+      const upcomingContainer = document.getElementById('upcomingMatchContainer');
+      if (!allMatches.upcoming || allMatches.upcoming.length === 0) {
+        upcomingContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; font-size:0.9em;">No upcoming scheduled matches available.</p>';
+      } else {
+        upcomingContainer.innerHTML = allMatches.upcoming.map(m => createMatchCardHtml(m, false)).join('');
+      }
+    }
+
+    function createMatchCardHtml(m, isLive) {
+      let badgeHtml = isLive 
+        ? `<span class="live-badge">LIVE ⚡</span> <span style="background:#333; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:8px;">${m.score}</span>`
+        : `<span style="color: var(--accent-yellow); font-weight: bold;">🕒 ${new Date(m.matchTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>`;
+
+      const csList = [
+        {k: '0-0', l: '0:0', o: m.odds.cs00}, {k: '1-0', l: '1:0', o: m.odds.cs10}, {k: '2-0', l: '2-0', o: m.odds.cs20}, {k: '3-0', l: '3:0', o: m.odds.cs30}, {k: '4-0', l: '4:0', o: m.odds.cs40},
+        {k: '0-1', l: '0:1', o: m.odds.cs01}, {k: '1-1', l: '1:1', o: m.odds.cs11}, {k: '2-1', l: '2:1', o: m.odds.cs21}, {k: '3-1', l: '3:1', o: m.odds.cs31}, {k: '4-1', l: '4:1', o: m.odds.cs41},
+        {k: '0-2', l: '0:2', o: m.odds.cs02}, {k: '1-2', l: '1:2', o: m.odds.cs12}, {k: '2-2', l: '2:2', o: m.odds.cs22}, {k: '3-2', l: '3:2', o: m.odds.cs32}, {k: '4-2', l: '4:2', o: m.odds.cs42},
+        {k: '0-3', l: '0:3', o: m.odds.cs03}, {k: '1-3', l: '1:3', o: m.odds.cs13}, {k: '2-3', l: '2:3', o: m.odds.cs23}, {k: '3-3', l: '3:3', o: m.odds.cs33}, {k: '4-3', l: '4:3', o: m.odds.cs43},
+        {k: '1-4', l: '1:4', o: m.odds.cs14}, {k: '2-4', l: '2:4', o: m.odds.cs24}, {k: '3-4', l: '3:4', o: m.odds.cs34}, {k: '4-4', l: '4:4', o: m.odds.cs44}, {k: 'other', l: 'Other', o: m.odds.csOther}
+      ];
+
+      return `
+        <div class="match-card">
+          <div class="match-meta">
+            <span>${m.isCustom ? 'Custom Match' : 'API Match'}</span>
+            ${badgeHtml}
+          </div>
+          <div class="match-teams">${m.home} vs ${m.away}</div>
           
-          if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem('currentUser', JSON.stringify(data.user));
-            alert("Login successful!");
-            window.location.reload(); 
-          } else {
-            const errorText = await res.text();
-            alert("Login failed: " + errorText);
-          }
-        } catch (e) {
-          alert("Error connecting to the server.");
-        }
-      }
-    }
-
-    async function handleDeposit() {
-      const amount = document.getElementById('walletAmount').value;
-      if (!currentUser) return alert("Please log in first.");
-      if (!amount || amount <= 0) return alert("Enter a valid amount.");
-
-      const res = await fetch('/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, amount: parseFloat(amount) })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.message);
-        currentUser.balance = data.newBalance;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        location.reload();
-      } else {
-        alert("Deposit failed.");
-      }
-    }
-
-    async function handleWithdraw() {
-      const amount = document.getElementById('walletAmount').value;
-      if (!currentUser) return alert("Please log in first.");
-      if (!amount || amount <= 0) return alert("Enter a valid amount.");
-
-      const res = await fetch('/withdraw', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser.id, amount: parseFloat(amount) })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.message);
-        currentUser.balance = data.newBalance;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        location.reload();
-      } else {
-        alert(data.error || "Withdrawal failed.");
-      }
-    }
-
-    function updatePayout() {
-      // Placeholder calculation
-    }
-
-    function placeBet() {
-      if (!currentUser) return alert("Please log in to place a bet.");
-      alert("Your bet slip is empty or invalid.");
-    }
-
-    // Fetch matches on load
-    async function fetchMatches() {
-      try {
-        const res = await fetch('/matches');
-        const data = await res.json();
-        const listDiv = document.getElementById('matchesList');
-        listDiv.innerHTML = '';
-        
-        let allMatches = [...(data.upcoming || [])];
-        if (allMatches.length === 0) {
-          listDiv.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No matches available right now.</p>';
-          return;
-        }
-
-        allMatches.slice(0, 5).forEach(m => {
-          const card = document.createElement('div');
-          card.className = 'match-card';
-          card.innerHTML = `
-            <div class="match-teams">${m.home} vs ${m.away}</div>
+          <div class="market-section">
+            <div class="market-title">1X2 Match Winner</div>
             <div class="odds-grid">
-              <button class="odd-btn">1: ${m.odds.home}</button>
-              <button class="odd-btn">X: ${m.odds.draw}</button>
-              <button class="odd-btn">2: ${m.odds.away}</button>
+              <div class="odd-btn ${isPicked(m.id, '1x2', 'home') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', '1x2', 'home', ${m.odds.home})">
+                <span class="odd-label">1</span>
+                <span class="odd-value">${m.odds.home}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, '1x2', 'draw') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', '1x2', 'draw', ${m.odds.draw})">
+                <span class="odd-label">X</span>
+                <span class="odd-value">${m.odds.draw}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, '1x2', 'away') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', '1x2', 'away', ${m.odds.away})">
+                <span class="odd-label">2</span>
+                <span class="odd-value">${m.odds.away}</span>
+              </div>
             </div>
-          `;
-          listDiv.appendChild(card);
-        });
-      } catch (e) {
-        console.error('Error fetching matches:', e);
+          </div>
+
+          <div class="market-section">
+            <div class="market-title">Double Chance</div>
+            <div class="odds-grid">
+              <div class="odd-btn ${isPicked(m.id, 'dc', '1x') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'dc', '1x', ${m.odds.dc1x})">
+                <span class="odd-label">1X</span>
+                <span class="odd-value">${m.odds.dc1x}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, 'dc', '12') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'dc', '12', ${m.odds.dc12})">
+                <span class="odd-label">12</span>
+                <span class="odd-value">${m.odds.dc12}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, 'dc', 'x2') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'dc', 'x2', ${m.odds.dcx2})">
+                <span class="odd-label">X2</span>
+                <span class="odd-value">${m.odds.dcx2}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-section">
+            <div class="market-title">Correct Score</div>
+            <div class="odds-grid-cs">
+              ${csList.map(item => `
+                <div class="odd-btn ${isPicked(m.id, 'cs', item.k) ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'cs', '${item.k}', ${item.o})">
+                  <span class="odd-label">${item.l}</span>
+                  <span class="odd-value">${item.o}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="market-section">
+            <div class="market-title">Total Goals (Over/Under 2.5)</div>
+            <div class="odds-grid-2">
+              <div class="odd-btn ${isPicked(m.id, 'ou', 'over') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'ou', 'over', ${m.odds.over})">
+                <span class="odd-label">Over 2.5</span>
+                <span class="odd-value">${m.odds.over}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, 'ou', 'under') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'ou', 'under', ${m.odds.under})">
+                <span class="odd-label">Under 2.5</span>
+                <span class="odd-value">${m.odds.under}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="market-section">
+            <div class="market-title">Both Teams To Score (BTTS)</div>
+            <div class="odds-grid-2">
+              <div class="odd-btn ${isPicked(m.id, 'btts', 'yes') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'btts', 'yes', ${m.odds.bttsYes})">
+                <span class="odd-label">Yes</span>
+                <span class="odd-value">${m.odds.bttsYes}</span>
+              </div>
+              <div class="odd-btn ${isPicked(m.id, 'btts', 'no') ? 'selected' : ''}" onclick="selectOdd('${m.id}', '${m.home} vs ${m.away}', 'btts', 'no', ${m.odds.bttsNo})">
+                <span class="odd-label">No</span>
+                <span class="odd-value">${m.odds.bttsNo}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function isPicked(matchId, market, pick) {
+      return betSlip.some(s => s.matchId == matchId && s.market === market && s.pick === pick);
+    }
+
+    function selectOdd(matchId, matchName, market, pick, odds) {
+      betSlip = betSlip.filter(s => !(String(s.matchId) === String(matchId) && s.market === market));
+      
+      let marketTitleLabel = market === '1x2' ? `1X2 (${pick.toUpperCase()})` 
+        : market === 'dc' ? `Double Chance (${pick.toUpperCase()})` 
+        : market === 'dnb' ? `Draw No Bet (${pick.toUpperCase()})` 
+        : market === 'cs' ? `Correct Score (${pick === 'other' ? 'Other' : pick})` 
+        : market === 'ou' ? `O/U 2.5 (${pick.toUpperCase()})` 
+        : `BTTS (${pick.toUpperCase()})`;
+
+      betSlip.push({ matchId, matchName, market, pick, marketTitleLabel, odds });
+
+      renderMatches();
+      renderSlip();
+    }
+
+    function removeFromSlip(index) {
+      betSlip.splice(index, 1);
+      renderMatches();
+      renderSlip();
+    }
+
+    function renderSlip() {
+      const container = document.getElementById('slipContainer');
+      document.getElementById('slipCount').innerText = betSlip.length;
+
+      if (betSlip.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9em; text-align: center; margin: 20px 0;">Your bet slip is empty.<br>Click odds to add selections.</p>';
+        document.getElementById('totalOdds').innerText = '1.00';
+        document.getElementById('parlayPayout').innerText = '0.00';
+        return;
+      }
+
+      container.innerHTML = betSlip.map((s, idx) => `
+        <div class="slip-item">
+          <button class="slip-remove" onclick="removeFromSlip(${idx})">✕</button>
+          <div style="font-weight:bold; margin-bottom:3px;">${s.matchName}</div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em; color:var(--text-muted);">
+            <span>Market: <strong style="color:#fff;">${s.marketTitleLabel}</strong></span>
+            <span>Odds: <strong style="color:var(--accent-yellow);">${s.odds}x</strong></span>
+          </div>
+        </div>
+      `).join('');
+
+      calculateParlayPayout();
+    }
+
+    function calculateParlayPayout() {
+      const amount = parseFloat(document.getElementById('betAmount').value) || 0;
+      let totalOdds = 1.0;
+      betSlip.forEach(s => totalOdds *= s.odds);
+      const payout = amount * totalOdds;
+      document.getElementById('totalOdds').innerText = totalOdds.toFixed(2);
+      document.getElementById('parlayPayout').innerText = payout.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    }
+
+    async function register() {
+      const username = document.getElementById('regUser').value;
+      const password = document.getElementById('regPass').value;
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      document.getElementById('regMsg').innerText = await res.text();
+    }
+
+    async function login() {
+      const username = document.getElementById('loginUser').value;
+      const password = document.getElementById('loginPass').value;
+
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        localStorage.setItem('betting_currentUser', JSON.stringify(currentUser));
+        activateDashboard();
+      } else {
+        document.getElementById('loginMsg').innerText = await res.text();
       }
     }
 
-    fetchMatches();
+    async function placeParlayBet() {
+      if (!currentUser) return;
+      if (betSlip.length === 0) { alert("Your bet slip is empty!"); return; }
+
+      const amount = document.getElementById('betAmount').value;
+      const totalOdds = parseFloat(document.getElementById('totalOdds').innerText) || 1;
+      const potentialWin = amount * totalOdds;
+      const msgDiv = document.getElementById('gameMsg');
+      const placeBtn = document.getElementById('placeBetBtn');
+      
+      if (!amount || amount <= 0) { alert("Enter a valid stake amount."); return; }
+
+      placeBtn.disabled = true;
+      msgDiv.innerText = "Placing bet...";
+      msgDiv.style.color = "var(--accent-yellow)";
+
+      const res = await fetch('/place-bet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, selections: betSlip, amount, potentialWin })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        currentUser.balance = data.newBalance;
+        localStorage.setItem('betting_currentUser', JSON.stringify(currentUser));
+        
+        document.getElementById('displayBalance').innerText = parseFloat(data.newBalance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        msgDiv.innerText = "✅ Bet placed successfully!";
+        msgDiv.style.color = '#2ecc71';
+        
+        betSlip = [];
+        renderMatches();
+        renderSlip();
+        fetchHistory();
+        placeBtn.disabled = false;
+      } else {
+        msgDiv.innerText = await res.text();
+        msgDiv.style.color = 'var(--accent-red)';
+        placeBtn.disabled = false;
+      }
+    }
+
+    async function addCustomMatch() {
+      const home = document.getElementById('customHome').value;
+      const away = document.getElementById('customAway').value;
+      const matchTime = document.getElementById('matchTimeInput').value;
+      
+      const payload = {
+        home, away, matchTime,
+        homeOdd: document.getElementById('homeOdd').value,
+        drawOdd: document.getElementById('drawOdd').value,
+        awayOdd: document.getElementById('awayOdd').value,
+        overOdd: document.getElementById('overOdd').value,
+        underOdd: document.getElementById('underOdd').value,
+        bttsYes: document.getElementById('bttsYesOdd').value,
+        bttsNo: document.getElementById('bttsNoOdd').value,
+        cs00: document.getElementById('cs00').value, cs10: document.getElementById('cs10').value, cs20: document.getElementById('cs20').value, cs30: document.getElementById('cs30').value, cs40: document.getElementById('cs40').value,
+        cs01: document.getElementById('cs01').value, cs11: document.getElementById('cs11').value, cs21: document.getElementById('cs21').value, cs31: document.getElementById('cs31').value, cs41: document.getElementById('cs41').value,
+        cs02: document.getElementById('cs02').value, cs12: document.getElementById('cs12').value, cs22: document.getElementById('cs22').value, cs32: document.getElementById('cs32').value, cs42: document.getElementById('cs42').value,
+        cs03: document.getElementById('cs03').value, cs13: document.getElementById('cs13').value, cs23: document.getElementById('cs23').value, cs33: document.getElementById('cs33').value, cs43: document.getElementById('cs43').value,
+        cs14: document.getElementById('cs14').value, cs24: document.getElementById('cs24').value, cs34: document.getElementById('cs34').value, cs44: document.getElementById('cs44').value, csOther: document.getElementById('csOther').value
+      };
+
+      const msgDiv = document.getElementById('adminMatchMsg');
+
+      const res = await fetch('/admin/add-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        msgDiv.innerText = data.message;
+        msgDiv.style.color = "#2ecc71";
+        document.getElementById('customHome').value = '';
+        document.getElementById('customAway').value = '';
+        document.getElementById('matchTimeInput').value = '';
+        loadAdminData();
+      } else {
+        msgDiv.innerText = await res.text();
+        msgDiv.style.color = "var(--accent-red)";
+      }
+    }
+
+    async function loadAdminData() {
+      const usersRes = await fetch('/admin/users');
+      const users = await usersRes.json();
+      document.getElementById('adminUsersTable').innerHTML = users.map(u => `
+        <tr>
+          <td>#${u.id}</td>
+          <td>${u.username}</td>
+          <td>₦${parseFloat(u.balance).toLocaleString()}</td>
+          <td>
+            <input type="number" id="newBal_${u.id}" placeholder="New Bal" style="width:90px; display:inline-block; padding:4px;">
+            <button class="btn-outline" onclick="adminUpdateBalance(${u.id})" style="padding:4px 8px; font-size:0.8em;">Set</button>
+          </td>
+        </tr>
+      `).join('');
+
+      const matchesRes = await fetch('/admin/custom-matches');
+      const matches = await matchesRes.json();
+      const selectElem = document.getElementById('resolveMatchSelect');
+      selectElem.innerHTML = matches.filter(m => m.status === 'UPCOMING').map(m => `
+        <option value="${m.id}">${m.home} vs ${m.away} (ID: ${m.id})</option>
+      `).join('') || '<option value="">No upcoming custom matches</option>';
+
+      const betsRes = await fetch('/admin/bets');
+      const bets = await betsRes.json();
+      document.getElementById('adminBetsTable').innerHTML = bets.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td>${b.username}</td>
+          <td>₦${parseFloat(b.amount).toLocaleString()}</td>
+          <td>${b.status}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function resolveMatch() {
+      const matchId = document.getElementById('resolveMatchSelect').value;
+      const homeScore = document.getElementById('resolveHomeScore').value;
+      const awayScore = document.getElementById('resolveAwayScore').value;
+      const msgDiv = document.getElementById('resolveMsg');
+
+      if (!matchId) {
+        msgDiv.innerText = "Select a match to resolve.";
+        msgDiv.style.color = "var(--accent-red)";
+        return;
+      }
+
+      const res = await fetch('/admin/resolve-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matchId, homeScore, awayScore })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        msgDiv.innerText = data.message;
+        msgDiv.style.color = "#2ecc71";
+        document.getElementById('resolveHomeScore').value = '';
+        document.getElementById('resolveAwayScore').value = '';
+        loadAdminData();
+      } else {
+        msgDiv.innerText = await res.text();
+        msgDiv.style.color = "var(--accent-red)";
+      }
+    }
+
+    async function adminUpdateBalance(userId) {
+      const newBalance = document.getElementById(`newBal_${userId}`).value;
+      const res = await fetch('/admin/adjust-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newBalance })
+      });
+      if (res.ok) {
+        alert((await res.json()).message);
+        loadAdminData();
+      } else {
+        alert(await res.text());
+      }
+    }
+
+    async function updateWallet(type) {
+      const amountInput = document.getElementById('walletAmount');
+      const val = parseFloat(amountInput.value);
+      const msgDiv = document.getElementById('walletMsg');
+
+      if (!val || val <= 0) {
+        msgDiv.innerText = "Enter valid amount.";
+        msgDiv.style.color = "var(--accent-red)";
+        return;
+      }
+
+      const endpoint = type === 'deposit' ? '/deposit' : '/withdraw';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, amount: val })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        currentUser.balance = data.newBalance;
+        localStorage.setItem('betting_currentUser', JSON.stringify(currentUser));
+        
+        document.getElementById('displayBalance').innerText = parseFloat(data.newBalance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        msgDiv.innerText = data.message;
+        msgDiv.style.color = "#2ecc71";
+        amountInput.value = '';
+      } else {
+        msgDiv.innerText = await res.text();
+        msgDiv.style.color = "var(--accent-red)";
+      }
+    }
+
+    async function fetchHistory() {
+      if (!currentUser) return;
+      const res = await fetch(`/bet-history/${currentUser.id}`);
+      const history = await res.json();
+      const tbody = document.getElementById('historyTableBody');
+      
+      if (history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted)">No bets placed yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = history.map(b => `
+        <tr>
+          <td>#${b.id}</td>
+          <td>₦${parseFloat(b.amount).toLocaleString()}</td>
+          <td>${b.status}</td>
+        </tr>
+      `).join('');
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('betting_currentUser');
+      document.getElementById('authSection').classList.remove('hidden');
+      document.getElementById('mainHeader').classList.add('hidden');
+      document.getElementById('gameSection').classList.add('hidden');
+      document.getElementById('adminSection').classList.add('hidden');
+    }
   </script>
+
 </body>
 </html>
