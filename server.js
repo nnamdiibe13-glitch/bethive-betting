@@ -12,14 +12,14 @@ const PORT = process.env.PORT || 3000;
 const MAX_BALANCE = parseInt(process.env.MAX_BALANCE) || 10000000;
 const FOOTBALL_API_KEY = 'e22423a5c1344cbfb1899985d652ffed';
 
-// Database Connection Pool (Prevents {"fatal": true} drops by auto-reconnecting)
+// Database Connection Pool with SSL and Port Integer Parsing
 const db = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'marius',
   database: process.env.DB_NAME || 'betting',
-  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : null,
+  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : false,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
